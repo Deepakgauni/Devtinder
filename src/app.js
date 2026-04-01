@@ -5,6 +5,7 @@ const express = require("express")
  const bcrypt = require("bcrypt")
  const cookieParser = require("cookie-parser")
  const jwt = require("jsonwebtoken")
+ const { userauth}= require("./middlewares/auth")
 
 const app = express();
 app.use(express.json())
@@ -64,27 +65,9 @@ app.post("/login", async (req, res)=>{
     }
 })
 
-app.get("/profile", async (req, res)=>{
+app.get("/profile", userauth, async (req, res)=>{
     try{
-    const cookies = req.cookies
-
-    const { token } = cookies
-    if(!token){
-        throw new Error("token is not valid")
-    }
-
-    const decodedToken = await jwt.verify(token, "DEv@tinder222")
-
-    const {_id}= decodedToken
-    console.log("decodedtoken:", + _id)
-
-    const user = await User.findById(_id)
-
-    if(!user){
-        throw new Error("user not found")
-    }
-
-    console.log(cookies)
+        const user = req.user
     res.send(user)
 }
 catch(err){
